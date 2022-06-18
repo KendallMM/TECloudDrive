@@ -9,8 +9,9 @@ class App extends Component{
 
     constructor(){
         super();
-        this.Titulo = 'Deylan'
+        this.Titulo = 'Clound computing'
         this.UsuarioSelecionado = false;
+        this.nombreboton = ''
         this.state = {
             ruta: "",
             compresion:"",
@@ -19,7 +20,9 @@ class App extends Component{
             propietario: '',
             selectedFile: [],
             singleProgress: 0,
-            tipo_archivo: ""
+            tipo_archivo: "",
+            etiqueta:'',
+            nombreboton:'Buscar'
         };
         this.handleChange = this.handleChange.bind(this);
         this.AgregarArchivo = this.AgregarArchivo.bind(this);
@@ -72,6 +75,52 @@ class App extends Component{
 
         
     }
+    logicabotonetiqueta(id){
+        if((this.state.nombreboton === 'Actualizar')){
+            
+            this.editaretiqueta(id);
+            
+        }
+        else{
+            
+            fetch(`/api/tasks/busqueda/${this.state.propietario}/${this.state.etiqueta}` )
+            .then(res => res.json())
+            .then(data => {
+                this.setState({archivos:data.archivo});
+                console.log(data.archivo);
+
+            })
+
+        }
+            
+
+        };
+    editaretiqueta(id){
+        fetch(`/api/tasks/editaretiqueta/${id}`,{
+            method: 'PUT',
+            body: JSON.stringify(this.state),
+            headers:{
+                'Accept': 'application/json',
+                'Content-Type':'application/json'
+            }
+
+
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data.compresion);
+                this.demelosArchivos(this.state.propietario);
+                this.setState({
+                    
+                    nombreboton: 'Buscar',
+                    _id: ''
+                });
+    
+                
+            });
+
+        
+    }
 
     eliminarArchivo(_id){
         if(confirm('Esta seguro que quiere el eliminar el archivo?')){
@@ -114,7 +163,7 @@ class App extends Component{
                 .then(data => {
                     console.log(data)
                     M.toast({html:'archivo editado'});
-                    this.setState({ruta: '', compresion:"",_id:'',tipo_archivo:''})
+                    this.setState({ruta: '', compresion:"",_id:'',tipo_archivo:'',etiqueta:''})
                     this.demelosArchivos(this.state.propietario);
     
                 })
@@ -136,7 +185,7 @@ class App extends Component{
                 .then(data => {
                     console.log(data)
                     M.toast({html:'archivo comprimido'});
-                    this.setState({ruta: '', compresion:"",tipo_archivo:''})
+                    this.setState({ruta: '', compresion:"",tipo_archivo:'',etiqueta:''})
                     this.demelosArchivos(this.state.propietario);
     
                 })
@@ -184,17 +233,6 @@ class App extends Component{
         e.preventDefault();
     }
 
-    
-
-
-
-
-        
-
-   
-
-
-
     render(){
 
 
@@ -228,11 +266,7 @@ class App extends Component{
                         <button  className="btn light-blue darken-4" style= {{margin: '4px'}}  onClick = {() => this.demelosArchivos(this.state.propietario)}>
                                 Mis Archivos
                         </button>
-                        <input type="file" id="selectedFile" name= "selectedFile" onChange={() => {this.setState({
-                                                                                                                     selectedFile:document.getElementById('selectedFile').files[0]})} } />
-                        <button onClick={this.onFileUpload}>
-                            Upload!
-                        </button>
+                        
                         
                         
                         </form>
@@ -245,7 +279,7 @@ class App extends Component{
                             <div className="col s5">
                                 <div className="card">
                                     <div className="card-content">
-                                        <form onSubmit={this.AgregarArchivo}>
+                                        <form onSubmit={this.cancelareventos}>
 
                                             <div className="row">
                                                 <div className="input-field col s12">
@@ -259,6 +293,8 @@ class App extends Component{
                                                 </div>
                                             </div>
 
+                                            
+
                                           
                                         
                                             
@@ -269,9 +305,25 @@ class App extends Component{
                                                     </textarea>
                                                 </div>
                                             </div>
+                                            <div>
+                                                <button  className="btn light-blue darken-4" type="submit"  style= {{margin: '4px'}}  onClick = {() => {this.setState({compresion:'huffman'})}}>
+                                                        Huffman
+                                                </button>
+                                                <button  className="btn light-blue darken-4" type="submit"  style= {{margin: '4px'}}  onClick = {() => {this.setState({compresion:'LZ77'})}}>
+                                                        LZ77
+                                                </button>
+                                                <button  className="btn light-blue darken-4" type="submit"  style= {{margin: '4px'}}  onClick = {() => {this.setState({compresion:'LZ78'})}}>
+                                                        LZ78
+                                                </button>
+                                                <button  className="btn light-blue darken-4" type="submit"  style= {{margin: '4px'}}  onClick = {() => {this.setState({compresion:'LZW'})}}>
+                                                        LZW
+                                                </button>
+
+                                            </div>
                                             
-                                            <button type = "submit" className="btn light-blue darken-4">
-                                                agregar
+                                            
+                                            <button type = "submit" className="btn light-blue darken-4"  onClick ={this.AgregarArchivo} >
+                                                Agregar
                                             </button>
                                         </form>
                                     </div>
@@ -283,6 +335,7 @@ class App extends Component{
                                     <thead>
                                         <tr>
                                             <th>Ruta</th>
+                                            <th>Etiqueta</th>
                                             <th>Compresion</th>
                                         </tr>
                                         
@@ -293,7 +346,13 @@ class App extends Component{
                                             this.state.archivos.map(Archivo =>{
                                                 return (
                                                     <tr key={Archivo._id}>
-                                                        <td>{Archivo.ruta}</td>
+                                                        <td>{Archivo.guardado}</td>
+                                                        <td>{Archivo.etiqueta}
+                                                        <button  className="btn light-blue darken-4"  onClick = {()=> this.setState({_id:Archivo._id,nombreboton:'Actualizar'})}>
+                                                                <i className = 'material-icons'>edit</i>
+                                                                
+                                                        </button></td>
+                                                        
                                                         <td>{Archivo.compresion}</td>
                                                         <td>
                                                             <button  className="btn light-blue darken-4" style= {{margin: '4px'}} onClick = {()=> this.eliminarArchivo(Archivo._id)}>
@@ -314,6 +373,21 @@ class App extends Component{
                                     </tbody>
                                 </table>
         
+                            </div>
+                            <div>
+                            <form onSubmit={this.cancelareventos}>
+
+                                
+                                <div className="row">
+                                    <div className="input-field col s12">
+                                        <input name= "etiqueta" onChange={this.handleChange} type= "text" placeholder = "etiqueta" value={this.state.etiqueta}/>
+                                    </div>
+                                </div>
+
+                                <button type = "submit" className="btn light-blue darken-4"   onClick = {() => this.logicabotonetiqueta(this.state._id)} >
+                                    {this.state.nombreboton}
+                                </button>
+                                </form>
                             </div>
         
                         </div>
