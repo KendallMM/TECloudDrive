@@ -33,15 +33,13 @@ void MainWindow::Compress(){
     tr("File to compress"), "/home/kendall/Escritorio/",NULL);
     if(!fileName.isEmpty()){
     std::string nel=fileName.toStdString();
-    stringstream input_stringstream(nel);
-    cout<<nel<<endl;
-    ifstream in(nel);
+    ifstream in(nel, ifstream::binary);
     if (in)
         {
             char c = in.get();
+            cout<<"Wait..."<<endl;
             while (!in.eof())
             {
-                cout<<"Waiting..."<<endl;
                 str += c;
                 c = in.get();
             }
@@ -60,64 +58,65 @@ void MainWindow::Compress(){
 }
 void MainWindow::LZW(const uint8_t * sampleData, const int sampleSize){
     int compressedSizeBytes = 0;
-        int compressedSizeBits  = 0;
-        uint8_t * compressedData = nullptr;
-        vector<uint8_t> uncompressedBuffer(sampleSize, 0);
+    int compressedSizeBits  = 0;
+    uint8_t * compressedData = nullptr;
+    vector<uint8_t> uncompressedBuffer(sampleSize, 0);
 
 
 
-    //----------------------------------------------------------------------------------------------------------------------------------
-        easyEncode(sampleData, sampleSize, &compressedData,&compressedSizeBytes, &compressedSizeBits);			//Encoding
+//----------------------------------------------------------------------------------------------------------------------------------
+    easyEncode(sampleData, sampleSize, &compressedData,&compressedSizeBytes, &compressedSizeBits);			//Encoding
 
-        cout << "LZW uncompressed size bytes = " << sampleSize << "\n";
-        cout << "LZW compressed size bytes   = " << compressedSizeBytes << "\n\n";
+    cout << "LZW uncompressed size bytes = " << sampleSize << "\n";
+    cout << "LZW compressed size bytes   = " << compressedSizeBytes << "\n\n";
 
-        ofstream out("encoded.txt");
-        for (int i = 0; i < compressedSizeBytes; i++)
-        {
-            out << compressedData[i];
-        }
-        out.close();
-    //----------------------------------------------------------------------------------------------------------------------------------
+    ofstream out("/home/kendall/Escritorio/encoded.txt", ifstream::binary);
+    for (int i = 0; i < compressedSizeBytes; i++)
+    {
+        out << compressedData[i];
+    }
+    cout<<"Encoded!"<<endl;
+    out.close();
+//----------------------------------------------------------------------------------------------------------------------------------
 
-        const int uncompressedSize = easyDecode(compressedData, compressedSizeBytes, compressedSizeBits, uncompressedBuffer.data(), uncompressedBuffer.size());				//Decoding
+    const int uncompressedSize = easyDecode(compressedData, compressedSizeBytes, compressedSizeBits, uncompressedBuffer.data(), uncompressedBuffer.size());				//Decoding
 
-        ofstream out2("decoded.txt");
-        for (int i = 0; i < uncompressedBuffer.size(); i++)
-        {
-            out2 << uncompressedBuffer[i];
-        }
+    ofstream out2("/home/kendall/Escritorio/decoded.txt");
+    for (int i = 0; i < uncompressedBuffer.size(); i++)
+    {
+        out2 << uncompressedBuffer[i];
+    }
+    cout<<"Decoded!"<<endl;
+    out2.close();
 
-        out2.close();
-
-        cout << "LZW decompressed size bytes   = " << uncompressedBuffer.size() << "\n\n";
-
-
-    //----------------------------------------------------------------------------------------------------------------------------------
+    cout << "LZW decompressed size bytes   = " << uncompressedBuffer.size() << "\n\n";
 
 
-        bool successful = true;
-        if (uncompressedSize != sampleSize)					// comparing sizes
-        {
-            cout << "LZW COMPRESSION ERROR! Size mismatch!\n";
-            successful = false;
-        }
-
-    //----------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------
 
 
-        if (memcmp(uncompressedBuffer.data(), sampleData, sampleSize) != 0)				//Comparing data
-        {
-            cout << "The files are not same. Data has been corrupted!\n";
-            successful = false;
-        }
+    bool successful = true;
+    if (uncompressedSize != sampleSize)					// comparing sizes
+    {
+        cout << "LZW COMPRESSION ERROR! Size mismatch!\n";
+        successful = false;
+    }
 
-        if (successful)
-        {
-            cout << "LZW compression successful!\n";
-        }
+//----------------------------------------------------------------------------------------------------------------------------------
 
-        free(compressedData);
+
+    if (memcmp(uncompressedBuffer.data(), sampleData, sampleSize) != 0)				//Comparing data
+    {
+        cout << "The files are not same. Data has been corrupted!\n";
+        successful = false;
+    }
+
+    if (successful)
+    {
+        cout << "LZW compression successful!\n";
+    }
+
+    free(compressedData);
 }
 
 void MainWindow::on_pushButton_clicked()
