@@ -22,5 +22,6 @@ private:
     Ui::MainWindow *ui;
     void Compress();
     void LZW(const uint8_t * sampleData, const int sampleSize);
+    std::string formato;
 };
 #endif // MAINWINDOW_H

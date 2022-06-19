@@ -32,8 +32,13 @@ void MainWindow::Compress(){
     QString fileName = QFileDialog::getOpenFileName(this,
     tr("File to compress"), "/home/kendall/Escritorio/",NULL);
     if(!fileName.isEmpty()){
-    std::string nel=fileName.toStdString();
-    ifstream in(nel, ifstream::binary);
+    std::string archivo=fileName.toStdString();
+    std::string fileExtension = "", word;
+    std::stringstream stream(archivo);
+    /* Divide el nombre del archivo por puntos hasta obtener el ultimo string */
+    while (getline(stream, formato, '.'));
+    cout<<formato;
+    ifstream in(archivo, ifstream::binary);
     if (in)
         {
             char c = in.get();
@@ -63,14 +68,13 @@ void MainWindow::LZW(const uint8_t * sampleData, const int sampleSize){
     vector<uint8_t> uncompressedBuffer(sampleSize, 0);
 
 
-
 //----------------------------------------------------------------------------------------------------------------------------------
     easyEncode(sampleData, sampleSize, &compressedData,&compressedSizeBytes, &compressedSizeBits);			//Encoding
 
     cout << "LZW uncompressed size bytes = " << sampleSize << "\n";
     cout << "LZW compressed size bytes   = " << compressedSizeBytes << "\n\n";
-
-    ofstream out("/home/kendall/Escritorio/encoded.txt", ifstream::binary);
+    std::string rutaGuardado = ui->lineEdit->text().toStdString();
+    ofstream out(rutaGuardado+"Comprimido.txt", ifstream::binary);
     for (int i = 0; i < compressedSizeBytes; i++)
     {
         out << compressedData[i];
@@ -78,10 +82,9 @@ void MainWindow::LZW(const uint8_t * sampleData, const int sampleSize){
     cout<<"Encoded!"<<endl;
     out.close();
 //----------------------------------------------------------------------------------------------------------------------------------
-
     const int uncompressedSize = easyDecode(compressedData, compressedSizeBytes, compressedSizeBits, uncompressedBuffer.data(), uncompressedBuffer.size());				//Decoding
-
-    ofstream out2("/home/kendall/Escritorio/decoded.txt");
+    std::string rutaGuardado2 = ui->lineEdit->text().toStdString();
+    ofstream out2(rutaGuardado2+"Descomprimido."+formato);
     for (int i = 0; i < uncompressedBuffer.size(); i++)
     {
         out2 << uncompressedBuffer[i];
@@ -90,21 +93,14 @@ void MainWindow::LZW(const uint8_t * sampleData, const int sampleSize){
     out2.close();
 
     cout << "LZW decompressed size bytes   = " << uncompressedBuffer.size() << "\n\n";
-
-
 //----------------------------------------------------------------------------------------------------------------------------------
-
-
     bool successful = true;
     if (uncompressedSize != sampleSize)					// comparing sizes
     {
         cout << "LZW COMPRESSION ERROR! Size mismatch!\n";
         successful = false;
     }
-
 //----------------------------------------------------------------------------------------------------------------------------------
-
-
     if (memcmp(uncompressedBuffer.data(), sampleData, sampleSize) != 0)				//Comparing data
     {
         cout << "The files are not same. Data has been corrupted!\n";
