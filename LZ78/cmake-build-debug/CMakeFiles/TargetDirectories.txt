@@ -1,0 +1,3 @@
+/home/carlos/CLionProjects/LZ78_Algorithm/cmake-build-debug/CMakeFiles/LZ78_Algorithm.dir
+/home/carlos/CLionProjects/LZ78_Algorithm/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/carlos/CLionProjects/LZ78_Algorithm/cmake-build-debug/CMakeFiles/rebuild_cache.dir
