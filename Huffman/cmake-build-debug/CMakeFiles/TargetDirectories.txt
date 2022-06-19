@@ -1,0 +1,3 @@
+/home/luisale06/Datos 2/Proyecto3/Huffman/Huffman/cmake-build-debug/CMakeFiles/HuffmanCoding.dir
+/home/luisale06/Datos 2/Proyecto3/Huffman/Huffman/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/luisale06/Datos 2/Proyecto3/Huffman/Huffman/cmake-build-debug/CMakeFiles/rebuild_cache.dir
